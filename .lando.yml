@@ -7,12 +7,6 @@ excludes:
 services:
   node:
     type: node:14
-    cmd: >-
-      hugo server
-        --bind 0.0.0.0
-        --navigateToChanged
-        --templateMetrics
-        --buildDrafts
     ssl: true
     sslExpose: true
     port: 1313
@@ -21,7 +15,8 @@ services:
       - curl -SL https://github.com/gohugoio/hugo/releases/download/v0.86.1/hugo_0.86.1_Linux-64bit.tar.gz -o /tmp/hugo.tar.gz
       - tar -xzf /tmp/hugo.tar.gz -C /tmp
       - mv /tmp/hugo /usr/local/bin/
-      - rm -rf /tmp/* 
+      - rm -rf /tmp/*
+    command: hugo server --bind 0.0.0.0 --navigateToChanged --templateMetrics --buildDrafts --disableFastRender
 tooling:
   yarn:
     service: node
@@ -33,4 +28,6 @@ tooling:
   watch:
     service: node
     cmd: yarn run dev
-
+  serve:
+    service: node
+    cmd: hugo server --bind 0.0.0.0 --navigateToChanged --templateMetrics --buildDrafts --disableFastRender
