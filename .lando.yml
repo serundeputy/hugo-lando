@@ -1,33 +1,40 @@
 name: hugo
 proxy:
-  node:
+  hugo:
     - hugo.lndo.site:1313
 excludes:
   - node_modules
 services:
-  node:
-    type: node:14
+  hugo:
+    type: compose
+    webroot: .
+    # app_mount: delegated
+    scanner: false
     ssl: true
     sslExpose: true
     port: 1313
-    scanner: false
-    build_as_root:
-      - curl -SL https://github.com/gohugoio/hugo/releases/download/v0.86.1/hugo_0.86.1_Linux-64bit.tar.gz -o /tmp/hugo.tar.gz
-      - tar -xzf /tmp/hugo.tar.gz -C /tmp
-      - mv /tmp/hugo /usr/local/bin/
-      - rm -rf /tmp/*
-    command: hugo server --bind 0.0.0.0 --navigateToChanged --templateMetrics --buildDrafts --disableFastRender
+    build:
+      - mkdir -p $HOME/src
+      - cd $HOME/src && git clone https://github.com/gohugoio/hugo.git
+      - cd $HOME/src/hugo && go install --tags extended
+    services:
+      image: golang:1.17.0-bullseye
+      environment:
+        CGO_ENABLED: 1
+      # Required. See Below
+      # ports:
+      #   - '1313:1313'
+      command: app
 tooling:
   yarn:
-    service: node
+    service: hugo
   node:
-    service: node
+    service: hugo
   hugo:
-    service: node
-    cmd: /usr/local/bin/hugo
+    service: hugo
   watch:
-    service: node
+    service: go
     cmd: yarn run dev
   serve:
-    service: node
+    service: hugo
     cmd: hugo server --bind 0.0.0.0 --navigateToChanged --templateMetrics --buildDrafts --disableFastRender
